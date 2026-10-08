@@ -44,7 +44,8 @@ function preparadorImagenes(fotos: Map<string, Foto>) {
   const resolver = (ref: string): string => {
     if (!ref.startsWith("foto:")) return ref;
     const foto = fotos.get(ref.slice(5));
-    if (!foto) return "";
+    // La foto ya no está en este navegador: mejor un aviso visible que una imagen rota
+    if (!foto) return "https://placehold.co/600x600/png?text=Foto+pendiente";
     let ruta = usadas.get(ref);
     if (!ruta) {
       const ext = foto.dataUrl.startsWith("data:image/png") ? "png" : "jpg";
