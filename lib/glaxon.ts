@@ -1,0 +1,100 @@
+import type { Tienda } from "./tipos";
+import { ESTILOS } from "./estilos";
+
+const TALLAS_ROPA = { etiqueta: "Talla", valores: ["S", "M", "L", "XL"] };
+const TALLAS_CALZADO = {
+  etiqueta: "Talla",
+  valores: ["36", "37", "38", "39", "40", "41", "42", "43", "44", "45"],
+};
+
+// Tienda base de ejemplo (GLAXON). Cada proyecto nuevo arranca desde aquí
+// y el agente la transforma con los datos del negocio del estudiante.
+export const TIENDA_BASE: Tienda = {
+  negocio: {
+    nombre: "GLAXON",
+    descripcion: "Tienda de fútbol: balones, uniformes, medias, chaquetas y calzado deportivo.",
+    eslogan: "Viste tu pasión. Juega al máximo.",
+    ciudad: "Bogotá",
+    cobertura: "Envíos a todo Colombia",
+    whatsapp: "573142598596",
+    instagram: "glaxonsport",
+    facebook: "Glaxon Sport",
+    tiktok: "",
+    horarios: [],
+    logo: "",
+  },
+  tema: ESTILOS.deportivo,
+  textos: {
+    heroEtiqueta: "⚽ Temporada 2026",
+    heroTitulo: "GLAXON",
+    heroTituloResaltado: "SPORT",
+    heroSubtitulo: "Viste tu pasión. Juega al máximo.",
+    heroBoton: "Ver catálogo",
+    heroImagen: "",
+    estadisticas: [
+      { valor: "{productos}", etiqueta: "Productos" },
+      { valor: "100%", etiqueta: "Calidad" },
+      { valor: "🚚", etiqueta: "Envío nacional" },
+    ],
+    bannerEtiqueta: "Todo lo que necesitas",
+    bannerTitulo: "El equipo de un",
+    bannerTituloResaltado: "crack real",
+    bannerTexto:
+      "Balones, uniformes, medias, chaquetas y calzado deportivo. Calidad garantizada para jugadores aficionados y profesionales. Envíos a todo el país.",
+    chips: ["Nequi / Daviplata", "Contraentrega", "Envío nacional", "Bre-b"],
+    catalogoEtiqueta: "Catálogo",
+    catalogoTitulo: "Productos",
+    botonAgregar: "+ Agregar al carrito",
+    beneficiosEtiqueta: "Por qué elegirnos",
+    beneficiosTitulo: "GLAXON Garantía",
+    recomendadosEtiqueta: "Selección especial",
+    recomendadosTitulo: "🔥 Recomendados",
+    topEtiqueta: "Más votados en el duelo",
+    topTitulo: "🏆 Top productos",
+    dueloEtiqueta: "¿Cuál prefieres?",
+    dueloTitulo: "⚔️ Duelo",
+    dueloInfo: "Haz clic en tu favorito para subirlo en el ranking",
+    testimoniosEtiqueta: "Lo que dicen",
+    testimoniosTitulo: "Clientes felices",
+    horariosEtiqueta: "Visítanos",
+    horariosTitulo: "Horarios de atención",
+    footerTexto: "Tu tienda de fútbol de confianza. Calidad, estilo y pasión en cada producto.",
+    footerFrase: "Hecho con ❤️ para los cracks de Colombia",
+    carritoTitulo: "Tu carrito",
+    botonPagar: "Pagar por WhatsApp",
+  },
+  productos: [
+    { id: "p1", nombre: "Balón Pro 1 GOLARY", precio: 60000, categoria: "Balones", imagen: "https://i.imgur.com/ORgclXZ.png" },
+    { id: "p2", nombre: "Balón Pro 2", precio: 60000, categoria: "Balones", imagen: "https://i.imgur.com/PTABqwG.png" },
+    { id: "p3", nombre: "Uniforme Blanco", precio: 80000, categoria: "Uniformes", imagen: "https://i.imgur.com/cuX7ggP.png", opciones: TALLAS_ROPA },
+    { id: "p4", nombre: "Uniforme Negro", precio: 80000, categoria: "Uniformes", imagen: "https://i.imgur.com/5t673Up.png", opciones: TALLAS_ROPA },
+    { id: "p5", nombre: "Uniforme Azul", precio: 80000, categoria: "Uniformes", imagen: "https://i.imgur.com/4jsmZ7c.png", opciones: TALLAS_ROPA },
+    { id: "p6", nombre: "Medias Azules", precio: 20000, categoria: "Medias", imagen: "https://i.imgur.com/RR9BGml.png", opciones: TALLAS_ROPA },
+    { id: "p7", nombre: "Medias Blanco con azul", precio: 20000, categoria: "Medias", imagen: "https://i.imgur.com/YLbSJr2.png", opciones: TALLAS_ROPA },
+    { id: "p8", nombre: "Medias Negras", precio: 20000, categoria: "Medias", imagen: "https://i.imgur.com/X3GThbL.png", opciones: TALLAS_ROPA },
+    { id: "p9", nombre: "Chaqueta Azul", precio: 120000, categoria: "Chaquetas", imagen: "https://i.imgur.com/4rMWBBu.png", opciones: TALLAS_ROPA },
+    { id: "p10", nombre: "Chaqueta Verde", precio: 120000, categoria: "Chaquetas", imagen: "https://i.imgur.com/mqbaZdI.png", opciones: TALLAS_ROPA },
+    { id: "p11", nombre: "Tenis 1", precio: 150000, categoria: "Calzado", imagen: "https://i.imgur.com/sM9J8CL.png", opciones: TALLAS_CALZADO },
+    { id: "p12", nombre: "Tenis 2", precio: 150000, categoria: "Calzado", imagen: "https://i.imgur.com/ESBuxg6.png", opciones: TALLAS_CALZADO },
+  ],
+  beneficios: [
+    { icono: "🚚", titulo: "Envíos a todo el país", texto: "Recibe tus productos rápido y seguro en cualquier ciudad de Colombia." },
+    { icono: "💳", titulo: "Pagos fáciles", texto: "Aceptamos Nequi, Daviplata, Bre-b y contraentrega." },
+    { icono: "🔥", titulo: "Calidad garantizada", texto: "Materiales duraderos ideales para el alto rendimiento en cancha." },
+    { icono: "⚽", titulo: "Para verdaderos jugadores", texto: "Equipamiento pensado para mejorar tu nivel sin importar la posición." },
+  ],
+  testimonios: [],
+  pagos: {
+    metodos: [
+      { nombre: "Nequi", icono: "💜", tipo: "transferencia" },
+      { nombre: "Daviplata", icono: "🔴", tipo: "transferencia" },
+      { nombre: "Bre-b", icono: "🟠", tipo: "transferencia" },
+      { nombre: "Contraentrega", icono: "💵", tipo: "contraentrega" },
+    ],
+    numeroTransferencia: "3142598596",
+    titular: "GLAXON Sport",
+    contraentregaDetalle: "Paga en efectivo cuando recibas tu pedido.",
+  },
+  secciones: ["banner", "catalogo", "beneficios", "recomendados", "top", "duelo"],
+  personalizado: { css: "", secciones: [] },
+};
