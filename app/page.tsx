@@ -8,6 +8,7 @@ import { mezclar, normalizarTienda } from "@/lib/cambios";
 import { revisarTienda } from "@/lib/validar";
 import { borrarFoto, borrarTodasLasFotos, guardarFoto, listarFotos, prepararFoto, type Foto } from "@/lib/fotos";
 import { generarDescarga, type FormatoDescarga } from "@/lib/exportar";
+import { Icono } from "./Icono";
 
 type Mensaje = { rol: "usuario" | "asistente"; texto: string; visible?: string; propuestas?: Propuesta[] };
 
@@ -18,7 +19,7 @@ const FOTO_PENDIENTE = "https://placehold.co/600x600/png?text=Foto+pendiente";
 const BIENVENIDA: Mensaje = {
   rol: "asistente",
   texto:
-    "¡Hola! Soy **Harvys**, tu asistente para construir la tienda virtual del negocio que entrevistaste. 🛍️\n\nA la derecha ves la tienda de ejemplo **GLAXON**: es la base, pero tu tienda va a tener su propia personalidad.\n\n**Para empezar:**\n- 📄 Sube tu **plantilla de entrevista** (.docx) con el botón de abajo, o cuéntame del negocio.\n- 📷 Sube las **fotos reales** de los productos.\n\nCon eso transformo la tienda y te propongo 3 estilos para que elijas.",
+    "¡Hola! Soy **Harvys**, tu asistente para construir la tienda virtual del negocio que entrevistaste.\n\nA la derecha ves la tienda de ejemplo **GLAXON**: es la base, pero tu tienda va a tener su propia personalidad.\n\n**Para empezar:**\n- Sube tu **plantilla de entrevista** (.docx) con el botón de abajo, o cuéntame del negocio.\n- Sube las **fotos reales** de los productos.\n\nCon eso transformo la tienda y te propongo 3 estilos para que elijas.",
 };
 
 const SUGERENCIAS = [
@@ -224,7 +225,7 @@ export default function Pagina() {
       await enviar(
         "Esta es la plantilla de la entrevista con la información del negocio. Úsala para transformar toda la tienda y luego proponme 3 estilos:\n\n" +
           datos.texto,
-        `📄 Subí la plantilla «${archivo.name}»`,
+        `Subí la plantilla «${archivo.name}»`,
       );
     } catch (e) {
       setMensajes((m) => [...m, { rol: "asistente", texto: "⚠️ " + (e instanceof Error ? e.message : "No pude leer la plantilla.") }]);
@@ -288,7 +289,7 @@ export default function Pagina() {
     <div className={`app vista-${vistaMovil}`}>
       <header className="barra">
         <div className="marca">
-          <span className="marca-icono">🛍️</span>
+          <span className="marca-icono">H</span>
           <div>
             <strong>Harvys</strong>
             <small>Prof. Harvey Sanabria · {tienda.negocio.nombre}</small>
@@ -296,30 +297,30 @@ export default function Pagina() {
         </div>
         <div className="pestanas-movil">
           <button className={vistaMovil === "chat" ? "activa" : ""} onClick={() => setVistaMovil("chat")}>
-            💬 Chat
+            <Icono nombre="chat" /> Chat
           </button>
           <button className={vistaMovil === "tienda" ? "activa" : ""} onClick={() => setVistaMovil("tienda")}>
-            👀 Tienda
+            <Icono nombre="ojo" /> Tienda
           </button>
         </div>
         <div className="acciones">
           <button onClick={deshacer} disabled={!historial.length} title="Deshacer el último cambio">
-            ↩ <span>Deshacer</span>
+            <Icono nombre="deshacer" /> <span>Deshacer</span>
           </button>
           <div className="menu-descarga">
             <button onClick={() => setMenuDescarga((v) => !v)} className="primario" title="Descargar la tienda">
-              ⬇ <span>Descargar</span> ▾
+              <Icono nombre="descargar" /> <span>Descargar</span> <Icono nombre="abajo" tamano={14} />
             </button>
             {menuDescarga && (
               <>
                 <div className="menu-fondo" onClick={() => setMenuDescarga(false)} />
                 <div className="menu-opciones">
                   <button onClick={() => descargar("pages")}>
-                    <strong>📦 Proyecto para GitHub Pages (.zip)</strong>
+                    <strong><Icono nombre="paquete" /> Proyecto para GitHub Pages (.zip)</strong>
                     <small>index.html + styles.css + script.js + img/ + README con los pasos</small>
                   </button>
                   <button onClick={() => descargar("unico")}>
-                    <strong>📄 Todo en un solo archivo (.zip)</strong>
+                    <strong><Icono nombre="archivo" /> Todo en un solo archivo (.zip)</strong>
                     <small>index.html con CSS y JS adentro + img/</small>
                   </button>
                   <div className="menu-separador">Archivos sueltos</div>
@@ -331,7 +332,7 @@ export default function Pagina() {
                   <small className="menu-nota">Los sueltos usan las fotos de la carpeta img/ (vienen en los .zip).</small>
                   <div className="menu-separador">Backend</div>
                   <button onClick={() => descargar("Code.gs")}>
-                    <strong>⚙️ Inventario con Google Sheets (Code.gs)</strong>
+                    <strong><Icono nombre="tabla" /> Inventario con Google Sheets (Code.gs)</strong>
                     <small>Apps Script con tus productos: stock, precios y registro de pedidos</small>
                   </button>
                 </div>
@@ -339,7 +340,7 @@ export default function Pagina() {
             )}
           </div>
           <button onClick={nuevoProyecto} title="Empezar de cero">
-            ✚ <span>Nuevo</span>
+            <Icono nombre="mas" /> <span>Nuevo</span>
           </button>
         </div>
       </header>
@@ -394,7 +395,7 @@ export default function Pagina() {
 
           {errores.length > 0 && !cargando && (
             <div className="aviso-errores">
-              ⚠️ La vista previa tiene {errores.length} error{errores.length > 1 ? "es" : ""}.
+              <Icono nombre="alerta" /> La vista previa tiene {errores.length} error{errores.length > 1 ? "es" : ""}.
               <button onClick={() => enviar("La vista previa muestra errores. Por favor corrígelos.")}>Pedir que los corrija</button>
             </div>
           )}
@@ -402,7 +403,7 @@ export default function Pagina() {
           {verFotos && (
             <div className="galeria">
               <div className="galeria-cabecera">
-                <strong>📷 Fotos del negocio ({fotos.length})</strong>
+                <strong>Fotos del negocio ({fotos.length})</strong>
                 <button onClick={() => setVerFotos(false)} aria-label="Cerrar">
                   ✕
                 </button>
@@ -445,13 +446,13 @@ export default function Pagina() {
           >
             <div className="adjuntos">
               <button type="button" onClick={() => inputPlantilla.current?.click()} disabled={cargando} title="Subir plantilla de entrevista (.docx)">
-                📄 Plantilla
+                <Icono nombre="archivo" /> Plantilla
               </button>
               <button type="button" onClick={() => inputFotos.current?.click()} disabled={cargando} title="Subir fotos de productos">
-                📷 Fotos
+                <Icono nombre="camara" /> Fotos
               </button>
               <button type="button" onClick={() => setVerFotos((v) => !v)} title="Ver fotos subidas">
-                🖼 {fotos.length}
+                <Icono nombre="imagenes" /> {fotos.length}
               </button>
               <input
                 ref={inputPlantilla}
@@ -490,7 +491,7 @@ export default function Pagina() {
                 disabled={cargando}
               />
               <button type="submit" disabled={cargando || !entrada.trim()} aria-label="Enviar">
-                ➤
+                <Icono nombre="enviar" tamano={18} />
               </button>
             </div>
           </form>
@@ -501,14 +502,14 @@ export default function Pagina() {
           <div className="vista-barra">
             <div className="dispositivos">
               <button className={dispositivo === "escritorio" ? "activa" : ""} onClick={() => setDispositivo("escritorio")}>
-                💻 Computador
+                <Icono nombre="computador" /> Computador
               </button>
               <button className={dispositivo === "movil" ? "activa" : ""} onClick={() => setDispositivo("movil")}>
-                📱 Celular
+                <Icono nombre="celular" /> Celular
               </button>
             </div>
             <button className={`revision-boton ${cumplidos === requisitos.length ? "ok" : ""}`} onClick={() => setVerRevision((v) => !v)}>
-              {cumplidos === requisitos.length ? "✅" : "📋"} Requisitos {cumplidos}/{requisitos.length}
+              <Icono nombre={cumplidos === requisitos.length ? "listo" : "lista"} /> Requisitos {cumplidos}/{requisitos.length}
             </button>
           </div>
 
