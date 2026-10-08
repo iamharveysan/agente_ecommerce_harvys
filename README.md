@@ -19,6 +19,11 @@ contenido, estilo visual (colores, tipografías, portada, tarjetas) y estructura
 - **Revisión automática** (`lib/validar.ts`): requisitos del proyecto y contraste de colores.
 - **Fotos**: se reducen en el navegador y se guardan en IndexedDB; al descargar van en `img/`.
 - **Descargas**: proyecto para GitHub Pages (`index.html` + `styles.css` + `script.js` + `img/`), todo en un solo archivo, o cada archivo suelto (`lib/exportar.ts`).
+- **Backend con Google Sheets** (`lib/appscript.ts`): Harvys genera un `Code.gs` con los productos
+  del estudiante. Primero se ejecuta `configurarTienda()` (crea las hojas *Productos* y *Pedidos*),
+  luego se publica como aplicación web y la URL `/exec` se conecta a la tienda. La tienda lee
+  precios y stock de la hoja, muestra "Agotado" y registra cada pedido. Si la hoja no responde,
+  la tienda sigue funcionando con sus propios datos.
 - Cada proyecto se guarda en el navegador del estudiante (no hay base de datos todavía).
 
 ## Desarrollo local

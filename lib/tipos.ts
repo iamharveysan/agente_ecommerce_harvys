@@ -108,6 +108,8 @@ export type Tienda = {
     titular: string;
     contraentregaDetalle: string;
   };
+  // URL de la aplicación web de Apps Script (inventario y pedidos en Google Sheets). Vacía = sin backend.
+  backend: { url: string };
   // Orden de las secciones. Ids fijos o "custom:<id>" para secciones personalizadas.
   secciones: string[];
   personalizado: { css: string; secciones: SeccionPersonalizada[] };

@@ -47,6 +47,7 @@ export function normalizarTienda(t: Tienda): Tienda {
       horarios: Array.isArray(t.negocio.horarios) ? t.negocio.horarios.map(String) : [],
     },
     tema: { ...t.tema, radio: Math.max(0, Math.min(40, Number(t.tema.radio) || 0)) },
+    backend: { url: String(t.backend?.url || "").trim() },
     secciones: Array.isArray(t.secciones) ? [...new Set(t.secciones.map(String))] : [],
     beneficios: Array.isArray(t.beneficios) ? t.beneficios : [],
     testimonios: Array.isArray(t.testimonios) ? t.testimonios : [],

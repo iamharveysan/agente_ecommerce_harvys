@@ -329,6 +329,11 @@ export default function Pagina() {
                     <button onClick={() => descargar("script.js")}>script.js</button>
                   </div>
                   <small className="menu-nota">Los sueltos usan las fotos de la carpeta img/ (vienen en los .zip).</small>
+                  <div className="menu-separador">Backend</div>
+                  <button onClick={() => descargar("Code.gs")}>
+                    <strong>⚙️ Inventario con Google Sheets (Code.gs)</strong>
+                    <small>Apps Script con tus productos: stock, precios y registro de pedidos</small>
+                  </button>
                 </div>
               </>
             )}

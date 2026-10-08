@@ -2,8 +2,9 @@ import JSZip from "jszip";
 import type { Tienda } from "./tipos";
 import type { Foto } from "./fotos";
 import { renderArchivos, renderTienda, slug } from "./render";
+import { generarAppsScript } from "./appscript";
 
-export type FormatoDescarga = "pages" | "unico" | "index.html" | "styles.css" | "script.js";
+export type FormatoDescarga = "pages" | "unico" | "index.html" | "styles.css" | "script.js" | "Code.gs";
 
 const README = (nombre: string) => `# ${nombre}
 
@@ -65,6 +66,11 @@ export async function generarDescarga(
 ): Promise<{ blob: Blob; nombre: string }> {
   const base = slug(tienda.negocio.nombre);
   const { resolver, archivos } = preparadorImagenes(fotos);
+
+  if (formato === "Code.gs") {
+    const codigo = generarAppsScript(tienda, resolver);
+    return { blob: new Blob([codigo], { type: "text/javascript;charset=utf-8" }), nombre: "Code.gs" };
+  }
 
   if (formato === "index.html" || formato === "styles.css" || formato === "script.js") {
     const partes = renderArchivos(tienda, { resolverImagen: resolver });

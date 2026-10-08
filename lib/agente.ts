@@ -37,6 +37,19 @@ GLAXON es solo la base: cada tienda debe sentirse propia del negocio.
 - Contraste: texto/fondo ≥ 4.5:1 y textoSobrePrimario/primario ≥ 3:1. Si el color del negocio no se lee bien, oscurécelo o aclaralo y explícalo.
 - Para cambios que no caben en el tema usa css_personalizado (usa las variables --p, --p-txt, --acc, --bg, --bg2, --card, --tx, --tx2, --r, --ft, --fb) o seccion_personalizada (HTML sin <script>, usando esas variables y las clases sec-label / sec-title).
 
+## BACKEND: INVENTARIO CON GOOGLE SHEETS (Apps Script)
+Es la etapa SIGUIENTE a la tienda. Ofrécela solo cuando la tienda esté completa (requisitos en orden) o cuando el estudiante la pida; si la pide antes, recomiéndale terminar primero los pendientes.
+Qué hace: la hoja de Google guarda productos, precios, stock y pedidos. La tienda lee la hoja al cargar, muestra "Agotado" o "¡Solo quedan X!", no deja pedir más del stock, y cada pedido enviado por WhatsApp queda registrado en la hoja "Pedidos" (descontando stock). El dueño del negocio edita precios y stock desde la hoja, sin tocar código.
+Guíalo UN PASO A LA VEZ y espera a que confirme cada uno antes de dar el siguiente:
+1. Descargar el script: botón "⬇ Descargar" → "⚙️ Inventario con Google Sheets (Code.gs)". Ya trae sus productos.
+2. Crear la hoja: entrar a sheets.new (con su cuenta de Google), ponerle nombre (ej. "<Negocio> — Inventario") → menú Extensiones → Apps Script → borrar el código que aparece, pegar todo Code.gs y guardar (💾).
+3. EJECUTAR PRIMERO configurarTienda: en la barra superior del editor elegir la función "configurarTienda" y pulsar ▶ Ejecutar. Autorizar permisos: si Google muestra "Google no verificó esta app", es normal porque es su propio script → "Configuración avanzada" → "Ir a … (no seguro)" → Permitir. Verificar que en la hoja aparezcan las pestañas "Productos" y "Pedidos". El stock inicial es 10 por producto: que lo ajuste con las cantidades reales del negocio.
+4. Publicar: Implementar → Nueva implementación → ⚙ tipo "Aplicación web" → Ejecutar como: "Yo" → Quién tiene acceso: "Cualquier usuario" → Implementar → copiar la URL que termina en /exec.
+5. Pegar la URL en este chat. Tú la guardas con actualizar_tienda {"backend":{"url":"<URL>"}}. Solo acepta URLs que empiecen por https://script.google.com/macros/s/ y terminen en /exec; si no, explica cuál copiar.
+6. Probar: en la hoja, poner stock 0 a un producto → en la vista previa debe salir "Agotado" (puede tardar unos segundos). Hacer un pedido de prueba → debe aparecer en la hoja "Pedidos".
+7. Descargar de nuevo el proyecto (📦 GitHub Pages) y publicarlo. Primero va la hoja (pasos 2–5) y DESPUÉS la publicación en Pages, para que la tienda publicada ya incluya la conexión.
+Notas: si después agrega o cambia productos en Harvys, debe reflejarlos también en la hoja "Productos" (mismo id). Si modifica Code.gs: Implementar → Gestionar implementaciones → ✏ Editar → Nueva versión. Nunca pidas contraseñas de Google.
+
 ## REGLAS DEL CURSO
 - Fotos: deben ser reales, tomadas en el negocio. NO generes imágenes con IA ni uses fotos de internet o de otras marcas. Si el estudiante lo pide, recuérdale la regla con amabilidad.
 - El prototipo NO procesa pagos reales ni integra pasarelas. Nunca pidas contraseñas, tarjetas ni datos bancarios.
@@ -55,7 +68,7 @@ const HERRAMIENTAS: OpenAI.Responses.FunctionTool[] = [
     type: "function",
     name: "actualizar_tienda",
     description:
-      "Cambia cualquier parte de la tienda (negocio, tema, textos, beneficios, testimonios, pagos, secciones) con una mezcla profunda: los objetos se combinan y los arreglos se reemplazan completos. Para productos usa gestionar_productos.",
+      "Cambia cualquier parte de la tienda (negocio, tema, textos, beneficios, testimonios, pagos, secciones, backend) con una mezcla profunda: los objetos se combinan y los arreglos se reemplazan completos. Para productos usa gestionar_productos.",
     parameters: {
       type: "object",
       properties: {

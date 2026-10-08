@@ -95,6 +95,7 @@ export const TIENDA_BASE: Tienda = {
     titular: "GLAXON Sport",
     contraentregaDetalle: "Paga en efectivo cuando recibas tu pedido.",
   },
+  backend: { url: "" },
   secciones: ["banner", "catalogo", "beneficios", "recomendados", "top", "duelo"],
   personalizado: { css: "", secciones: [] },
 };

@@ -117,6 +117,7 @@ function generar(t: Tienda, op: OpcionesRender, separado: boolean): ArchivosTien
     botonAgregar: textos.botonAgregar,
     productos,
     pagos: t.pagos,
+    backend: t.backend?.url || "",
   };
 
   const reemplazar = (s: string) => s.replace("{productos}", String(t.productos.length));

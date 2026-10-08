@@ -68,6 +68,10 @@ export function revisarTienda(t: Tienda): ItemRevision[] {
   const c4 = contraste(c.primario, c.fondo);
   if (c4 !== null) sug(c4 >= 2.5, `El color principal resalta sobre el fondo (${c4.toFixed(1)}:1)`);
 
+  const url = t.backend?.url || "";
+  if (url)
+    req(/^https:\/\/script\.google\.com\/macros\/s\/[\w-]+\/exec$/.test(url), "La URL del backend es una aplicación web de Apps Script (termina en /exec)");
+
   sug(t.textos.heroTitulo.trim().toUpperCase() !== "GLAXON" || t.negocio.nombre === "GLAXON", "El hero ya no dice GLAXON");
   return items;
 }

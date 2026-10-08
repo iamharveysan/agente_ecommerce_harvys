@@ -16,10 +16,14 @@ function porId(id){for(var i=0;i<productos.length;i++){if(productos[i].id===id)r
 function $(id){return document.getElementById(id)}
 function numeroBonito(n){n=String(n||"").replace(/\D/g,"");return n.length===10?n.slice(0,3)+" "+n.slice(3,6)+" "+n.slice(6):n}
 
-var carrito=leer("carrito",[]).filter(function(c){return porId(c.id)});
+var BACKEND=D.backend||"";
+var carrito=[];
 var elos=leer("elo",{});
-productos.forEach(function(p){p.elo=typeof elos[p.id]==="number"?elos[p.id]:1000});
 var categoriaActiva="Todos";
+
+/* Unidades del mismo producto en el carrito (todas sus opciones) */
+function enCarrito(id){return carrito.reduce(function(s,c){return s+(c.id===id?c.cantidad:0)},0)}
+function hayStock(p,extra){return p.stock==null||enCarrito(p.id)+extra<=p.stock}
 
 /* Enlaces internos (#seccion) con desplazamiento suave */
 document.addEventListener("click",function(e){
@@ -77,10 +81,13 @@ function mostrarProductos(lista){
       '<div class="prod-precio">'+fmt(p.precio)+'</div>'+opHTML+
       '<button class="btn-agregar">'+esc(D.botonAgregar)+'</button></div>';
     var btn=div.querySelector(".btn-agregar"),img=div.querySelector("img"),sel=div.querySelector(".select-talla");
+    if(p.stock!=null&&p.stock<=0){div.classList.add("agotado");btn.disabled=true;btn.textContent="Agotado"}
+    else if(p.stock!=null&&p.stock<=3){div.querySelector(".prod-precio").insertAdjacentHTML("afterend",'<div class="prod-stock">¡Solo quedan '+p.stock+'!</div>')}
     if(sel)sel.onchange=function(){sel.style.borderColor=""};
     btn.onclick=function(){
       var v=sel?sel.value:"";
       if(sel&&!v){sel.style.borderColor="#ff6666";sel.focus();return}
+      if(!hayStock(p,1)){alert("Solo hay "+p.stock+" unidad"+(p.stock===1?"":"es")+" disponible"+(p.stock===1?"":"s")+" de "+p.nombre);return}
       agregarCarrito(p,v);animarVuelo(img);
       btn.classList.add("agregado");btn.textContent="✔ Agregado";
       setTimeout(function(){btn.classList.remove("agregado");btn.textContent=D.botonAgregar},1600);
@@ -110,7 +117,10 @@ function agregarCarrito(p,opcion){
 }
 function totalCarrito(){return carrito.reduce(function(s,c){return s+porId(c.id).precio*c.cantidad},0)}
 function unidades(){return carrito.reduce(function(s,c){return s+c.cantidad},0)}
-function cambiarCantidad(i,d){carrito[i].cantidad+=d;if(carrito[i].cantidad<=0)carrito.splice(i,1);guardar();actualizarCarrito()}
+function cambiarCantidad(i,d){
+  var p=porId(carrito[i].id);
+  if(d>0&&!hayStock(p,d)){alert("Solo hay "+p.stock+" unidades disponibles de "+p.nombre);return}
+  carrito[i].cantidad+=d;if(carrito[i].cantidad<=0)carrito.splice(i,1);guardar();actualizarCarrito()}
 function actualizarCarrito(){
   var lista=$("lista-carrito"),badge=$("badge"),u=unidades();
   lista.innerHTML="";badge.style.display=u?"flex":"none";badge.textContent=u;
@@ -176,7 +186,8 @@ function prepararWsp(el){
   if(!carrito.length){alert("Tu carrito está vacío");return false}
   if(!D.whatsapp){alert("Esta tienda aún no tiene número de WhatsApp configurado");return false}
   var m=metodos[metodoSel]||{nombre:"",tipo:""};
-  var msg="*Pedido "+D.nombre+"*\n\n*Artículos:*\n";
+  var pedidoId="P"+Date.now().toString(36).toUpperCase();
+  var msg="*Pedido "+D.nombre+"*\n*N° de pedido:* "+pedidoId+"\n\n*Artículos:*\n";
   carrito.forEach(function(c){
     var p=porId(c.id),et=p.opciones?p.opciones.etiqueta:"";
     msg+="- "+c.cantidad+" x "+p.nombre+(c.opcion?" ("+et+": "+c.opcion+")":"")+" — "+fmt(p.precio*c.cantidad)+"\n";
@@ -185,7 +196,12 @@ function prepararWsp(el){
   if(m.tipo!=="contraentrega")msg+="📸 *Adjunto el soporte del pago*\n\n";
   msg+="*Datos de envío:*\n\nNombres:\nDocumento:\nTeléfono:\nDirección completa:\nBarrio:\nCiudad:\nDepartamento:";
   el.href="https://wa.me/"+D.whatsapp+"?text="+encodeURIComponent(msg);
-  setTimeout(cerrarModal,300);return true;
+  if(BACKEND){
+    // Registra el pedido en Google Sheets (descuenta stock) sin frenar la apertura de WhatsApp
+    try{fetch(BACKEND,{method:"POST",mode:"no-cors",keepalive:true,headers:{"Content-Type":"text/plain;charset=utf-8"},
+      body:JSON.stringify({pedidoId:pedidoId,metodo:m.nombre,items:carrito.map(function(c){return{id:c.id,opcion:c.opcion,cantidad:c.cantidad}})})})}catch(e){}
+  }
+  setTimeout(function(){cerrarModal();vaciarCarrito()},300);return true;
 }
 
 /* ===== TOP ===== */
@@ -235,8 +251,39 @@ window.toggleCarrito=toggleCarrito;window.cerrarCarrito=cerrarCarrito;window.vac
 window.pagar=pagar;window.cerrarModal=cerrarModal;window.modalClickFuera=modalClickFuera;
 window.copiarNumero=copiarNumero;window.prepararWsp=prepararWsp;window.filtrarBusqueda=aplicarFiltros;
 
+/* ===== BACKEND (Google Sheets) ===== */
+// Si la tienda tiene backend, los productos, precios y stock salen de la hoja.
+// Si la hoja no responde, la tienda sigue funcionando con los datos de este archivo.
+function cargarBackend(listo){
+  if(!BACKEND||!window.fetch){listo();return}
+  var terminado=false;
+  var fin=function(){if(!terminado){terminado=true;listo()}};
+  setTimeout(fin,6000);
+  fetch(BACKEND).then(function(r){return r.json()}).then(function(d){
+    if(terminado||!d||!d.ok||!d.productos||!d.productos.length)return;
+    productos=d.productos.map(function(p){
+      var local=porId(p.id);
+      // Las fotos locales (img/...) se toman de este archivo; las URL completas, de la hoja
+      if(!/^https?:/.test(p.imagen||"")&&local)p.imagen=local.imagen;
+      return p;
+    });
+  }).catch(function(){}).then(fin);
+}
+
 /* ===== INICIO ===== */
-crearFiltros();mostrarProductos(productos);mostrarTop();mostrarRecomendados();duelo();
-crearMetodos();actualizarCarrito();
+function iniciar(){
+  carrito=leer("carrito",[]).filter(function(c){return porId(c.id)});
+  // Un carrito guardado de otra visita no puede superar el stock actual
+  productos.forEach(function(p){
+    if(p.stock==null)return;
+    var resta=p.stock;
+    carrito.forEach(function(c){if(c.id===p.id){c.cantidad=Math.min(c.cantidad,resta);resta-=c.cantidad}});
+  });
+  carrito=carrito.filter(function(c){return c.cantidad>0});
+  productos.forEach(function(p){p.elo=typeof elos[p.id]==="number"?elos[p.id]:1000});
+  crearFiltros();mostrarProductos(productos);mostrarTop();mostrarRecomendados();duelo();
+  crearMetodos();actualizarCarrito();
+}
+cargarBackend(iniciar);
 })();
 `;

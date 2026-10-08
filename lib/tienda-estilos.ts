@@ -79,6 +79,9 @@ header.hero{position:relative;display:flex;align-items:center;justify-content:ce
 .select-talla:focus{border-color:var(--p)}
 .btn-agregar{margin-top:auto;width:100%;padding:12px;background:color-mix(in srgb,var(--p) 12%,transparent);border:1px solid color-mix(in srgb,var(--p) 30%,transparent);color:var(--p);border-radius:calc(var(--r) * .65);font-family:var(--fb);font-weight:700;font-size:14px;cursor:pointer;transition:all .25s;letter-spacing:.5px}
 .btn-agregar:hover,.btn-agregar.agregado{background:var(--p);color:var(--p-txt);border-color:var(--p)}
+.btn-agregar:disabled{opacity:.55;cursor:not-allowed;background:transparent;color:var(--tx2);border-color:var(--linea)}
+.producto.agotado img{opacity:.45;filter:grayscale(.6)}
+.prod-stock{font-size:12px;font-weight:700;color:#e0663d;margin-top:-6px}
 
 /* ===== CARRITO ===== */
 .carrito-fab{position:fixed;top:20px;right:20px;z-index:1000;background:var(--p);color:var(--p-txt);width:52px;height:52px;border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;box-shadow:0 8px 30px color-mix(in srgb,var(--p) 45%,transparent);transition:all .3s;border:none;font-size:20px}
