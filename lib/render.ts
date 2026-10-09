@@ -9,6 +9,9 @@ export type OpcionesRender = {
   preview?: boolean;
 };
 
+// Crédito del autor de Harvys en el pie de cada tienda generada.
+const CONTACTO_AUTOR = "573103323843";
+
 const FUENTES_CONDENSADAS = ["Bebas Neue", "Anton", "Oswald", "League Gothic", "Barlow Condensed", "Teko"];
 
 function esc(s: unknown): string {
@@ -260,6 +263,10 @@ function generar(t: Tienda, op: OpcionesRender, separado: boolean): ArchivosTien
   <div class="footer-bottom">
     <span>© ${new Date().getFullYear()} ${esc(negocio.nombre)} — Todos los derechos reservados</span>
     <span>${esc(textos.footerFrase)}</span>
+  </div>
+  <div class="footer-credito">
+    Creada con <strong>Harvys</strong> · Prof. Harvey Sanabria ·
+    <a href="https://wa.me/${CONTACTO_AUTOR}?text=${encodeURIComponent("Hola Profesor Harvey, vi una tienda creada con Harvys y quiero más información.")}" target="_blank" rel="noopener">WhatsApp 310 332 3843</a>
   </div>
 </footer>`;
 

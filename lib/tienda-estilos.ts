@@ -191,6 +191,10 @@ footer{background:linear-gradient(135deg,var(--bg2),color-mix(in srgb,var(--p) 6
 .footer-col a{text-decoration:none;transition:color .2s}
 .footer-col a:hover{color:var(--p)}
 .footer-bottom{border-top:1px solid var(--linea);padding-top:25px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:15px;font-size:12px;color:var(--tx2)}
+.footer-credito{margin-top:18px;text-align:center;font-size:11px;color:var(--tx2);opacity:.75;letter-spacing:.2px}
+.footer-credito strong{color:var(--tx)}
+.footer-credito a{color:inherit;text-decoration:underline;text-underline-offset:2px}
+.footer-credito a:hover{color:var(--p)}
 
 /* ===== MODAL PAGO ===== */
 .modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:2000;display:flex;align-items:flex-end;justify-content:center;opacity:0;pointer-events:none;transition:opacity .3s}
