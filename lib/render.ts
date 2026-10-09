@@ -361,6 +361,12 @@ ${cuerpo}
 ${footer}
 
 ${
+  op.preview
+    ? ""
+    : `<!-- Copia del proyecto para volver a abrirlo en Harvys (botón "Abrir"). No la borres. -->
+<script type="application/json" id="harvys-proyecto">${jsonSeguro(t)}</script>`
+}
+${
   separado
     ? `<script src="script.js"></script>`
     : `<script>\nwindow.TIENDA_DATOS = ${jsonSeguro(datos)};\n</script>\n<script>\n${SCRIPT_TIENDA}\n</script>`

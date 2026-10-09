@@ -35,6 +35,11 @@ Abre \`index.html\` con doble clic.
 4. En *Source* elige **Deploy from a branch**, rama **main** y carpeta **/ (root)**. Guarda.
 5. Espera 1–2 minutos: tu tienda queda en \`https://<tu-usuario>.github.io/<nombre-del-repo>/\`.
 
+## Seguir editando en Harvys
+
+En Harvys pulsa **Abrir** y sube este .zip (o la carpeta completa). La tienda y sus fotos
+vuelven tal como estaban.
+
 > El prototipo no procesa pagos reales; los pedidos llegan por WhatsApp.
 `;
 

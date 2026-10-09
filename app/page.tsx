@@ -9,6 +9,7 @@ import { revisarTienda } from "@/lib/validar";
 import { borrarFoto, borrarTodasLasFotos, guardarFoto, listarFotos, prepararFoto, type Foto } from "@/lib/fotos";
 import { generarDescarga, type FormatoDescarga } from "@/lib/exportar";
 import { Icono } from "./Icono";
+import { importarTienda } from "@/lib/importar";
 
 type Mensaje = { rol: "usuario" | "asistente"; texto: string; visible?: string; propuestas?: Propuesta[] };
 
@@ -19,7 +20,7 @@ const FOTO_PENDIENTE = "https://placehold.co/600x600/png?text=Foto+pendiente";
 const BIENVENIDA: Mensaje = {
   rol: "asistente",
   texto:
-    "¡Hola! Soy **Harvys**, tu asistente para construir la tienda virtual del negocio que entrevistaste.\n\nA la derecha ves la tienda de ejemplo **GLAXON**: es la base, pero tu tienda va a tener su propia personalidad.\n\n**Para empezar:**\n- Sube tu **plantilla de entrevista** (.docx) con el botón de abajo, o cuéntame del negocio.\n- Sube las **fotos reales** de los productos.\n\nCon eso transformo la tienda y te propongo 3 estilos para que elijas.",
+    "¡Hola! Soy **Harvys**, tu asistente para construir la tienda virtual del negocio que entrevistaste.\n\nA la derecha ves la tienda de ejemplo **GLAXON**: es la base, pero tu tienda va a tener su propia personalidad.\n\n**Para empezar:**\n- Sube tu **plantilla de entrevista** (.docx) con el botón de abajo, o cuéntame del negocio.\n- Sube las **fotos reales** de los productos.\n\nCon eso transformo la tienda y te propongo 3 estilos para que elijas.\n\n**¿Ya tenías una tienda?** Pulsa **Abrir** (arriba) y sube el .zip o la carpeta que descargaste para seguir trabajando.",
 };
 
 const SUGERENCIAS = [
@@ -94,6 +95,9 @@ export default function Pagina() {
   const [codigo, setCodigo] = useState("");
   const [pedirCodigo, setPedirCodigo] = useState(false);
   const [menuDescarga, setMenuDescarga] = useState(false);
+  const [menuAbrir, setMenuAbrir] = useState(false);
+  const inputAbrir = useRef<HTMLInputElement>(null);
+  const inputCarpeta = useRef<HTMLInputElement>(null);
 
   const finChat = useRef<HTMLDivElement>(null);
   const inputPlantilla = useRef<HTMLInputElement>(null);
@@ -268,6 +272,33 @@ export default function Pagina() {
     setTimeout(() => URL.revokeObjectURL(a.href), 2000);
   }
 
+  async function abrirTienda(archivos: File[]) {
+    setMenuAbrir(false);
+    if (!archivos.length) return;
+    const hayTrabajo = historial.length > 0 || tienda.negocio.nombre !== TIENDA_BASE.negocio.nombre;
+    if (hayTrabajo && !confirm("Se reemplazará la tienda que tienes abierta ahora por la que vas a subir. ¿Continuar?")) return;
+    setCargando(true);
+    setEstadoCarga("Abriendo tu tienda…");
+    try {
+      const r = await importarTienda(archivos);
+      await borrarTodasLasFotos();
+      for (const f of r.fotos) await guardarFoto(f);
+      setFotos(r.fotos);
+      setHistorial([]);
+      setTienda(r.tienda);
+      const resumen =
+        `✅ Recuperé tu tienda **${r.tienda.negocio.nombre}**: ${r.tienda.productos.length} productos y ${r.fotos.length} fotos.` +
+        (r.avisos.length ? "\n\n" + r.avisos.map((a) => "- " + a).join("\n") : "") +
+        "\n\n¿Qué quieres cambiar hoy?";
+      setMensajes([BIENVENIDA, { rol: "asistente", texto: resumen }]);
+      setVistaMovil("tienda");
+    } catch (e) {
+      setMensajes((m) => [...m, { rol: "asistente", texto: "⚠️ " + (e instanceof Error ? e.message : "No pude abrir esos archivos.") }]);
+    } finally {
+      setCargando(false);
+    }
+  }
+
   async function nuevoProyecto() {
     if (!confirm("¿Empezar un proyecto nuevo? Se borrará la tienda, el chat y las fotos de este navegador.")) return;
     await borrarTodasLasFotos();
@@ -307,6 +338,49 @@ export default function Pagina() {
           <button onClick={deshacer} disabled={!historial.length} title="Deshacer el último cambio">
             <Icono nombre="deshacer" /> <span>Deshacer</span>
           </button>
+          <div className="menu-descarga">
+            <button onClick={() => setMenuAbrir((v) => !v)} disabled={cargando} title="Abrir una tienda descargada antes">
+              <Icono nombre="subir" /> <span>Abrir</span>
+            </button>
+            {menuAbrir && (
+              <>
+                <div className="menu-fondo" onClick={() => setMenuAbrir(false)} />
+                <div className="menu-opciones">
+                  <button onClick={() => inputAbrir.current?.click()}>
+                    <strong><Icono nombre="paquete" /> Subir el .zip</strong>
+                    <small>El que descargaste de Harvys (o el de GitHub: Code → Download ZIP)</small>
+                  </button>
+                  <button onClick={() => inputCarpeta.current?.click()}>
+                    <strong><Icono nombre="carpeta" /> Subir la carpeta del proyecto</strong>
+                    <small>La carpeta con index.html, styles.css, script.js e img/</small>
+                  </button>
+                  <small className="menu-nota">Tu tienda y sus fotos vuelven tal como las dejaste.</small>
+                </div>
+              </>
+            )}
+            <input
+              ref={inputAbrir}
+              type="file"
+              accept=".zip,.html,.js,.css,image/*"
+              multiple
+              hidden
+              onChange={(e) => {
+                abrirTienda(Array.from(e.target.files ?? []));
+                e.target.value = "";
+              }}
+            />
+            <input
+              ref={inputCarpeta}
+              type="file"
+              multiple
+              hidden
+              {...({ webkitdirectory: "" } as Record<string, string>)}
+              onChange={(e) => {
+                abrirTienda(Array.from(e.target.files ?? []));
+                e.target.value = "";
+              }}
+            />
+          </div>
           <div className="menu-descarga">
             <button onClick={() => setMenuDescarga((v) => !v)} className="primario" title="Descargar la tienda">
               <Icono nombre="descargar" /> <span>Descargar</span> <Icono nombre="abajo" tamano={14} />
