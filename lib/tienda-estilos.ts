@@ -66,9 +66,13 @@ header.hero{position:relative;display:flex;align-items:center;justify-content:ce
 .producto:hover{transform:translateY(-6px);border-color:color-mix(in srgb,var(--p) 30%,transparent);box-shadow:0 20px 50px var(--sombra)}
 .tarj-planas .producto,.tarj-planas .bcard,.tarj-planas .rec-card,.tarj-planas .top-card,.tarj-planas .duelo-card,.tarj-planas .testimonio{border-color:transparent;box-shadow:none}
 .tarj-borde .producto,.tarj-borde .bcard,.tarj-borde .rec-card,.tarj-borde .top-card,.tarj-borde .duelo-card,.tarj-borde .testimonio{background:transparent;border-color:color-mix(in srgb,var(--tx) 18%,transparent)}
-.prod-img-wrap{position:relative;background:linear-gradient(135deg,var(--bg2),var(--bg));padding:20px;overflow:hidden}
-.producto img{width:100%;height:190px;object-fit:contain;transition:transform .4s ease}
-.producto:hover img{transform:scale(1.08)}
+.prod-img-wrap{position:relative;background:linear-gradient(135deg,var(--bg2),var(--bg));padding:20px;overflow:hidden;cursor:zoom-in}
+.prod-lupa{position:absolute;top:10px;right:10px;z-index:2;width:30px;height:30px;border-radius:50%;background:color-mix(in srgb,var(--card) 85%,transparent);color:var(--tx);display:flex;align-items:center;justify-content:center;opacity:.85;transition:opacity .25s,transform .25s;pointer-events:none;box-shadow:0 2px 8px var(--sombra)}
+.prod-lupa svg{width:15px;height:15px}
+.prod-img-wrap:hover .prod-lupa{opacity:0;transform:scale(.8)}
+.producto img{width:100%;height:190px;object-fit:contain;transition:transform .3s ease}
+/* Lupa: al pasar el mouse la foto se amplía siguiendo el cursor */
+@media (hover:hover){.prod-img-wrap:hover img{transform:scale(2)}}
 .prod-cat{position:absolute;top:12px;left:12px;z-index:1;background:color-mix(in srgb,var(--p) 15%,var(--card));border:1px solid color-mix(in srgb,var(--p) 25%,transparent);color:var(--p);font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;padding:4px 10px;border-radius:var(--rp)}
 .prod-body{padding:16px;flex:1;display:flex;flex-direction:column;gap:10px}
 .prod-nombre{font-size:18px;font-weight:700;color:var(--tx);line-height:1.2}
@@ -224,12 +228,26 @@ footer{background:linear-gradient(135deg,var(--bg2),color-mix(in srgb,var(--p) 6
 .sin-resultados{grid-column:1/-1;text-align:center;padding:60px 20px;color:var(--tx2)}
 .sin-resultados h3{font-family:var(--ft);font-size:32px;color:color-mix(in srgb,var(--tx) 18%,transparent);margin-bottom:8px}
 
+/* ===== VISOR DE FOTOS ===== */
+.visor{position:fixed;inset:0;z-index:2500;background:rgba(0,0,0,.85);display:flex;align-items:center;justify-content:center;padding:20px;opacity:0;pointer-events:none;transition:opacity .25s}
+.visor.activo{opacity:1;pointer-events:all}
+.visor-caja{position:relative;background:var(--card);border-radius:calc(var(--r) * 1.2);max-width:min(860px,100%);max-height:100%;display:flex;flex-direction:column;overflow:hidden;box-shadow:0 30px 80px rgba(0,0,0,.5)}
+.visor-foto{overflow:hidden;background:#fff;cursor:zoom-in;display:flex;align-items:center;justify-content:center;min-height:0;flex:1}
+.visor-foto img{display:block;max-width:100%;max-height:calc(100vh - 160px);object-fit:contain;transition:transform .3s ease}
+.visor-foto.ampliada{cursor:zoom-out}
+.visor-foto.ampliada img{transform:scale(2.2)}
+.visor-caja figcaption{display:flex;justify-content:space-between;align-items:center;gap:14px;padding:14px 18px;border-top:1px solid var(--linea)}
+.visor-caja figcaption strong{color:var(--tx);font-size:16px}
+.visor-caja figcaption span{font-family:var(--ft);color:var(--p);font-size:22px;white-space:nowrap}
+.visor-cerrar{position:absolute;top:10px;right:10px;z-index:2;width:36px;height:36px;border-radius:50%;border:none;background:rgba(0,0,0,.6);color:#fff;font-size:16px;cursor:pointer}
+.visor-ayuda{font-size:11px;color:var(--tx2);padding:0 18px 12px;margin-top:-6px}
+
 /* ===== NIVELES DE ANIMACIÓN ===== */
 .anim-media .banner-glow{animation:none}
 .anim-media .producto:hover,.anim-media .duelo-card:hover,.anim-media .top-card:hover{transform:translateY(-3px)}
 .anim-baja *,.anim-baja *::before,.anim-baja *::after{animation:none!important}
 .anim-baja .producto:hover,.anim-baja .bcard:hover,.anim-baja .rec-card:hover,.anim-baja .top-card:hover,.anim-baja .duelo-card:hover,.anim-baja .btn-hero:hover{transform:none}
-.anim-baja .producto:hover img,.anim-baja .duelo-card:hover img{transform:none}
+.anim-baja .duelo-card:hover img{transform:none}
 
 /* ===== RESPONSIVE ===== */
 @media(max-width:768px){

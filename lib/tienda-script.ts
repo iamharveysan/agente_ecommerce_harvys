@@ -92,6 +92,15 @@ function mostrarProductos(lista){
       btn.classList.add("agregado");btn.textContent="✔ Agregado";
       setTimeout(function(){btn.classList.remove("agregado");btn.textContent=D.botonAgregar},1600);
     };
+    // Lupa que sigue al cursor y visor en grande al hacer clic
+    var wrap=div.querySelector(".prod-img-wrap");
+    wrap.insertAdjacentHTML("beforeend",'<span class="prod-lupa" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3M11 8v6M8 11h6"/></svg></span>');
+    wrap.addEventListener("mousemove",function(e){
+      var r=wrap.getBoundingClientRect();
+      img.style.transformOrigin=((e.clientX-r.left)/r.width*100)+"% "+((e.clientY-r.top)/r.height*100)+"%";
+    });
+    wrap.addEventListener("mouseleave",function(){img.style.transformOrigin=""});
+    wrap.onclick=function(){abrirVisor(p)};
     cont.appendChild(div);
   });
 }
@@ -246,6 +255,32 @@ function duelo(){
     if(idx===0){var vs=document.createElement("div");vs.className="duelo-vs";vs.textContent="VS";d.appendChild(vs)}
   });
 }
+
+/* ===== VISOR DE FOTOS ===== */
+function abrirVisor(p){
+  var v=$("visor");if(!v)return;
+  $("visor-img").src=p.imagen;$("visor-img").alt=p.nombre;
+  $("visor-nombre").textContent=p.nombre;$("visor-precio").textContent=fmt(p.precio);
+  $("visor-foto").classList.remove("ampliada");
+  v.classList.add("activo");
+}
+function cerrarVisor(){var v=$("visor");if(v)v.classList.remove("activo")}
+(function(){
+  var v=$("visor");if(!v)return;
+  var foto=$("visor-foto"),im=$("visor-img");
+  v.addEventListener("click",function(e){if(e.target===v||e.target.closest(".visor-cerrar"))cerrarVisor()});
+  foto.addEventListener("click",function(e){
+    var r=foto.getBoundingClientRect();
+    im.style.transformOrigin=((e.clientX-r.left)/r.width*100)+"% "+((e.clientY-r.top)/r.height*100)+"%";
+    foto.classList.toggle("ampliada");
+  });
+  foto.addEventListener("mousemove",function(e){
+    if(!foto.classList.contains("ampliada"))return;
+    var r=foto.getBoundingClientRect();
+    im.style.transformOrigin=((e.clientX-r.left)/r.width*100)+"% "+((e.clientY-r.top)/r.height*100)+"%";
+  });
+  document.addEventListener("keydown",function(e){if(e.key==="Escape")cerrarVisor()});
+})();
 
 window.toggleCarrito=toggleCarrito;window.cerrarCarrito=cerrarCarrito;window.vaciarCarrito=vaciarCarrito;
 window.pagar=pagar;window.cerrarModal=cerrarModal;window.modalClickFuera=modalClickFuera;
