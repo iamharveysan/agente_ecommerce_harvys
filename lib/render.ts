@@ -121,6 +121,12 @@ function generar(t: Tienda, op: OpcionesRender, separado: boolean): ArchivosTien
     productos,
     pagos: t.pagos,
     backend: t.backend?.url || "",
+    negocio: { ciudad: negocio.ciudad, cobertura: negocio.cobertura, horarios: negocio.horarios },
+    asistente: {
+      activo: t.asistente?.activo !== false,
+      nombre: t.asistente?.nombre || `Asistente de ${negocio.nombre}`,
+      saludo: t.asistente?.saludo || "",
+    },
   };
 
   const reemplazar = (s: string) => s.replace("{productos}", String(t.productos.length));
@@ -274,6 +280,39 @@ function generar(t: Tienda, op: OpcionesRender, separado: boolean): ArchivosTien
   if (tema.fuentes.cuerpo !== tema.fuentes.titulos) fuentes.push(enlaceFuente(tema.fuentes.cuerpo, true));
   else fuentes[0] = enlaceFuente(tema.fuentes.titulos, true);
 
+  // ----- Asistente de chat (robot) -----
+  const robot = (clase: string) => `<svg class="${clase}" viewBox="0 0 64 64" aria-hidden="true">
+      <line x1="32" y1="5" x2="32" y2="14" stroke="currentColor" stroke-width="3" stroke-linecap="round"/>
+      <circle class="as-antena" cx="32" cy="5" r="4" fill="currentColor"/>
+      <rect x="4" y="27" width="6" height="12" rx="3" fill="currentColor"/>
+      <rect x="54" y="27" width="6" height="12" rx="3" fill="currentColor"/>
+      <rect x="10" y="14" width="44" height="38" rx="15" fill="currentColor"/>
+      <rect x="16" y="21" width="32" height="20" rx="10" fill="var(--as-cara)"/>
+      <circle class="as-ojo" cx="25" cy="31" r="4" fill="currentColor"/>
+      <circle class="as-ojo" cx="39" cy="31" r="4" fill="currentColor"/>
+      <path d="M26 45q6 4 12 0" stroke="var(--as-cara)" stroke-width="3" fill="none" stroke-linecap="round"/>
+    </svg>`;
+  const asistente =
+    t.asistente?.activo === false
+      ? ""
+      : `
+<!-- ASISTENTE DE LA TIENDA (responde con los datos de esta tienda) -->
+<span class="as-aviso" id="as-aviso">¿Te ayudo? 👋</span>
+<button class="as-burbuja" id="as-burbuja" aria-label="Abrir el asistente de la tienda">${robot("as-robot")}</button>
+<div class="as-panel" id="as-panel" role="dialog" aria-label="${esc(datos.asistente.nombre)}">
+  <div class="as-cabecera">
+    <div class="as-avatar">${robot("as-robot")}</div>
+    <div><strong>${esc(datos.asistente.nombre)}</strong><small><i></i> En línea</small></div>
+    <button id="as-cerrar" aria-label="Cerrar el asistente">✕</button>
+  </div>
+  <div class="as-mensajes" id="as-mensajes"></div>
+  <div class="as-chips" id="as-chips"></div>
+  <form class="as-form" id="as-form">
+    <input id="as-input" placeholder="Escribe tu pregunta…" autocomplete="off" aria-label="Tu pregunta">
+    <button type="submit" aria-label="Enviar"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19V5"/><path d="m5 12 7-7 7 7"/></svg></button>
+  </form>
+</div>`;
+
   const scriptErrores = op.preview
     ? `<script>window.addEventListener("error",function(e){try{parent.postMessage({tipo:"error-tienda",mensaje:String(e.message)+(e.lineno?" (línea "+e.lineno+")":"")},"*")}catch(_){}});</script>`
     : "";
@@ -363,6 +402,7 @@ ${separado ? `<link rel="stylesheet" href="styles.css">` : `<style>\n${css}</sty
     <div class="panel-btns"><button class="btn-vaciar" onclick="vaciarCarrito()">Vaciar</button><button class="btn-pagar" onclick="pagar()">${esc(textos.botonPagar)}</button></div>
   </div>
 </div>
+${asistente}
 ${hero}
 ${cuerpo}
 ${footer}

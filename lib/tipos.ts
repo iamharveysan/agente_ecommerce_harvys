@@ -110,6 +110,8 @@ export type Tienda = {
   };
   // URL de la aplicación web de Apps Script (inventario y pedidos en Google Sheets). Vacía = sin backend.
   backend: { url: string };
+  // Asistente de chat automático dentro de la tienda (responde con los datos de la tienda, sin IA externa).
+  asistente: { activo: boolean; nombre: string; saludo: string };
   // Orden de las secciones. Ids fijos o "custom:<id>" para secciones personalizadas.
   secciones: string[];
   personalizado: { css: string; secciones: SeccionPersonalizada[] };

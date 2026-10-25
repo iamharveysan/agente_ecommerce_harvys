@@ -127,7 +127,10 @@ export async function importarTienda(entrada: File[]): Promise<ResultadoImportac
   const guardado = doc.getElementById("harvys-proyecto")?.textContent;
   if (guardado) {
     try {
-      const tienda = normalizarTienda(mezclar(TIENDA_BASE, JSON.parse(guardado)) as Tienda);
+      const datosGuardados = JSON.parse(guardado);
+      const tienda = normalizarTienda(mezclar(TIENDA_BASE, datosGuardados) as Tienda);
+      // Proyectos anteriores al asistente de chat: no heredar el nombre de la tienda de ejemplo
+      if (!datosGuardados.asistente) tienda.asistente = { activo: true, nombre: "", saludo: "" };
       const faltan = tienda.productos.filter((p) => p.imagen.startsWith("foto:") && !idsFotos.has(p.imagen.slice(5)));
       if (faltan.length) avisos.push(`Faltan ${faltan.length} foto(s) (no venía la carpeta img/): ${faltan.map((p) => p.nombre).join(", ")}.`);
       return { tienda, fotos, exacta: true, avisos };
@@ -174,6 +177,9 @@ export async function importarTienda(entrada: File[]): Promise<ResultadoImportac
   t.productos = (datos.productos || []).map((p: any) => ({ ...p, imagen: convertirImagen(p.imagen) }));
   if (datos.pagos) t.pagos = { ...t.pagos, ...datos.pagos };
   t.backend = { url: String(datos.backend || "") };
+  t.asistente = datos.asistente
+    ? { activo: datos.asistente.activo !== false, nombre: String(datos.asistente.nombre || ""), saludo: String(datos.asistente.saludo || "") }
+    : { activo: true, nombre: "", saludo: "" };
 
   // Tema (variables de :root y clases del body)
   const colores = {

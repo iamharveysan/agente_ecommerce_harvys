@@ -96,6 +96,7 @@ export const TIENDA_BASE: Tienda = {
     contraentregaDetalle: "Paga en efectivo cuando recibas tu pedido.",
   },
   backend: { url: "" },
+  asistente: { activo: true, nombre: "Glaxi", saludo: "" },
   secciones: ["banner", "catalogo", "beneficios", "recomendados", "top", "duelo"],
   personalizado: { css: "", secciones: [] },
 };

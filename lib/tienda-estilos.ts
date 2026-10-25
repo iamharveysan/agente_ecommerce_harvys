@@ -246,6 +246,57 @@ footer{background:linear-gradient(135deg,var(--bg2),color-mix(in srgb,var(--p) 6
 .visor-cerrar{position:absolute;top:10px;right:10px;z-index:2;width:36px;height:36px;border-radius:50%;border:none;background:rgba(0,0,0,.6);color:#fff;font-size:16px;cursor:pointer}
 .visor-ayuda{font-size:11px;color:var(--tx2);padding:0 18px 12px;margin-top:-6px}
 
+/* ===== ASISTENTE (burbuja con robot) ===== */
+.as-burbuja{position:fixed;right:20px;bottom:20px;z-index:1200;width:64px;height:64px;border-radius:50%;border:none;background:var(--p);color:var(--p-txt);--as-cara:var(--p);cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:0 10px 30px color-mix(in srgb,var(--p) 45%,transparent),0 0 0 4px color-mix(in srgb,var(--p) 18%,transparent);animation:asFlotar 3s ease-in-out infinite;transition:transform .25s}
+.as-burbuja:hover{transform:scale(1.08)}
+.as-burbuja.activa{animation:none;transform:scale(.92)}
+.as-burbuja .as-robot{width:40px;height:40px}
+.as-ojo{transform-box:fill-box;transform-origin:center;animation:asParpadeo 4s infinite}
+.as-antena{animation:asBrillo 1.8s ease-in-out infinite}
+.as-aviso{position:fixed;right:96px;bottom:38px;z-index:1200;display:none;background:var(--card);color:var(--tx);border:1px solid var(--linea);padding:8px 14px;border-radius:14px 14px 4px 14px;font-size:13px;font-weight:600;box-shadow:0 8px 24px var(--sombra);animation:fadeUp .4s ease both;pointer-events:none}
+.as-panel{position:fixed;right:20px;bottom:98px;z-index:1200;width:370px;max-width:calc(100vw - 32px);height:540px;max-height:calc(100vh - 120px);background:var(--card);border:1px solid var(--linea);border-radius:max(var(--r),14px);display:flex;flex-direction:column;overflow:hidden;box-shadow:0 24px 60px var(--sombra);opacity:0;transform:translateY(16px) scale(.97);transform-origin:bottom right;pointer-events:none;transition:opacity .25s,transform .25s}
+.as-panel.abierto{opacity:1;transform:none;pointer-events:all}
+.as-cabecera{display:flex;align-items:center;gap:10px;padding:14px 16px;background:var(--p);color:var(--p-txt)}
+.as-avatar{width:40px;height:40px;border-radius:50%;flex-shrink:0;background:color-mix(in srgb,var(--p-txt) 16%,transparent);color:var(--p-txt);--as-cara:var(--p);display:flex;align-items:center;justify-content:center}
+.as-avatar .as-robot{width:27px;height:27px}
+.as-cabecera strong{display:block;font-size:15px}
+.as-cabecera small{display:flex;align-items:center;gap:5px;font-size:11px;opacity:.85}
+.as-cabecera small i{width:7px;height:7px;border-radius:50%;background:#3ddc84;box-shadow:0 0 0 2px color-mix(in srgb,#3ddc84 35%,transparent)}
+#as-cerrar{margin-left:auto;flex-shrink:0;width:30px;height:30px;border-radius:50%;border:none;cursor:pointer;background:color-mix(in srgb,var(--p-txt) 16%,transparent);color:var(--p-txt)}
+.as-mensajes{flex:1;overflow-y:auto;padding:14px;display:flex;flex-direction:column;gap:8px;background:var(--bg2)}
+.as-msg{max-width:86%;padding:9px 12px;border-radius:14px;font-size:13.5px;line-height:1.45;animation:fadeUp .25s ease both;word-wrap:break-word}
+.as-bot{align-self:flex-start;background:var(--card);color:var(--tx);border:1px solid var(--linea);border-bottom-left-radius:4px}
+.as-yo{align-self:flex-end;background:var(--p);color:var(--p-txt);border-bottom-right-radius:4px}
+.as-msg a{color:var(--p);font-weight:700}
+.as-prod{display:flex;gap:10px;align-items:center;margin-top:8px;padding:8px;background:var(--bg2);border-radius:10px}
+.as-prod img{width:60px;height:60px;object-fit:contain;background:#fff;border-radius:8px;flex-shrink:0}
+.as-prod strong{display:block;font-size:13px}
+.as-prod span{display:block;color:var(--p);font-weight:800}
+.as-prod small{display:block;font-size:11px;color:var(--tx2)}
+.as-prod button{margin-top:6px;border:none;border-radius:8px;padding:5px 10px;background:var(--p);color:var(--p-txt);font-family:var(--fb);font-size:11px;font-weight:700;cursor:pointer}
+.as-escribiendo{display:flex;gap:4px;padding:12px 14px}
+.as-escribiendo i{width:7px;height:7px;border-radius:50%;background:var(--tx2);animation:asSalto 1s infinite}
+.as-escribiendo i:nth-child(2){animation-delay:.15s}
+.as-escribiendo i:nth-child(3){animation-delay:.3s}
+.as-chips{display:flex;flex-wrap:wrap;gap:6px;padding:8px 12px 0;background:var(--card)}
+.as-chips:empty{display:none}
+.as-chips button{border:1px solid color-mix(in srgb,var(--p) 40%,transparent);background:transparent;color:var(--p);border-radius:100px;padding:5px 11px;font-family:var(--fb);font-size:12px;font-weight:600;cursor:pointer}
+.as-chips button:hover{background:var(--p);color:var(--p-txt)}
+.as-form{display:flex;gap:8px;padding:10px 12px 12px;background:var(--card)}
+.as-form input{flex:1;min-width:0;border:1px solid var(--linea);background:var(--bg2);color:var(--tx);border-radius:100px;padding:10px 14px;font-family:var(--fb);font-size:13px;outline:none}
+.as-form input:focus{border-color:var(--p)}
+.as-form button{width:40px;height:40px;flex-shrink:0;border:none;border-radius:50%;background:var(--p);color:var(--p-txt);cursor:pointer;display:flex;align-items:center;justify-content:center}
+@keyframes asFlotar{0%,100%{transform:translateY(0)}50%{transform:translateY(-5px)}}
+@keyframes asParpadeo{0%,92%,100%{transform:scaleY(1)}96%{transform:scaleY(.1)}}
+@keyframes asBrillo{0%,100%{opacity:1}50%{opacity:.45}}
+@keyframes asSalto{0%,60%,100%{transform:translateY(0);opacity:.5}30%{transform:translateY(-4px);opacity:1}}
+@media(max-width:768px){
+  .as-burbuja{right:14px;bottom:14px;width:58px;height:58px}
+  .as-burbuja .as-robot{width:36px;height:36px}
+  .as-aviso{right:82px;bottom:30px}
+  .as-panel{left:8px;right:8px;width:auto;max-width:none;bottom:84px;height:calc(100vh - 170px);height:calc(100dvh - 170px);max-height:none}
+}
+
 /* ===== NIVELES DE ANIMACIÓN ===== */
 .anim-media .banner-glow{animation:none}
 .anim-media .producto:hover,.anim-media .duelo-card:hover,.anim-media .top-card:hover{transform:translateY(-3px)}

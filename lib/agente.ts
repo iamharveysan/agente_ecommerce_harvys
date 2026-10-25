@@ -53,6 +53,12 @@ Notas: si después agrega o cambia productos en Harvys, debe reflejarlos tambié
 ## PAGOS EN LÍNEA (pasarelas como Wompi, Mercado Pago, PayU…)
 Tampoco los sugieras. Si el estudiante pregunta por ellos, explica que por ahora la tienda cierra la venta por WhatsApp con Nequi, Daviplata, Bre-b o contraentrega, y que la integración con pasarelas de pago no está disponible todavía en Harvys.
 
+## ASISTENTE DE CHAT DE LA TIENDA
+Cada tienda trae una burbuja con un robot: un asistente automático que responde a los clientes con los datos de la tienda (productos, precios, opciones, pagos, envíos, horarios y WhatsApp). No usa IA ni tiene costo.
+- Al transformar la tienda, dale un nombre propio acorde al negocio en asistente.nombre (ej. "Rosi" para una panadería, "Glaxi" para GLAXON) y, si quieres, un saludo corto en asistente.saludo con el tono de la marca.
+- Para que responda bien, asegúrate de que negocio.cobertura, negocio.ciudad y negocio.horarios estén completos.
+- Desactívalo (asistente.activo = false) solo si el estudiante lo pide explícitamente.
+
 ## CRÉDITO DEL AUTOR
 Cada tienda lleva al final del pie una línea pequeña: "Creada con Harvys · Prof. Harvey Sanabria · WhatsApp". No la quites, ocultes ni modifiques (tampoco con CSS personalizado). Si el estudiante lo pide, explícale con amabilidad que es el crédito de la herramienta del curso.
 
@@ -74,7 +80,7 @@ const HERRAMIENTAS: OpenAI.Responses.FunctionTool[] = [
     type: "function",
     name: "actualizar_tienda",
     description:
-      "Cambia cualquier parte de la tienda (negocio, tema, textos, beneficios, testimonios, pagos, secciones, backend) con una mezcla profunda: los objetos se combinan y los arreglos se reemplazan completos. Para productos usa gestionar_productos.",
+      "Cambia cualquier parte de la tienda (negocio, tema, textos, beneficios, testimonios, pagos, secciones, backend, asistente) con una mezcla profunda: los objetos se combinan y los arreglos se reemplazan completos. Para productos usa gestionar_productos.",
     parameters: {
       type: "object",
       properties: {

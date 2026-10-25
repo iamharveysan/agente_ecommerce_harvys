@@ -256,6 +256,127 @@ function duelo(){
   });
 }
 
+/* ===== ASISTENTE DE LA TIENDA =====
+   Chat automático: reconoce la intención de la pregunta y responde con los datos
+   de esta tienda (productos, precios, pagos, envíos, horarios). No usa IA externa. */
+var AS=D.asistente||{activo:false};
+var N=D.negocio||{};
+var CHIPS_INICIO=["Ver productos","Medios de pago","Envíos","¿Cómo compro?","Hablar con un asesor"];
+var chatAbierto=false,chatIniciado=false;
+
+function normalizar(s){return String(s||"").toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g,"")}
+function contiene(t,palabras){for(var i=0;i<palabras.length;i++){if(t.indexOf(palabras[i])>=0)return true}return false}
+function categorias(){var c=[];productos.forEach(function(p){if(c.indexOf(p.categoria)<0)c.push(p.categoria)});return c}
+function lineaProducto(p){return "• "+esc(p.nombre)+" — "+fmt(p.precio)}
+function enlaceWsp(texto){
+  if(!D.whatsapp)return "contáctanos";
+  return '<a href="https://wa.me/'+D.whatsapp+'?text='+encodeURIComponent("Hola "+D.nombre+", tengo una pregunta")+'" target="_blank" rel="noopener">'+texto+'</a>';
+}
+function saludoAsistente(){
+  return AS.saludo?esc(AS.saludo):"¡Hola! 👋 Soy <strong>"+esc(AS.nombre)+"</strong>, tu asistente en <strong>"+esc(D.nombre)+"</strong>. Te ayudo a encontrar productos, precios, medios de pago y envíos. ¿Qué buscas hoy?";
+}
+function productoEnTexto(t){
+  var exacto=null;
+  productos.forEach(function(p){if(normalizar(p.nombre)===t)exacto=p});
+  if(exacto)return exacto;
+  var palabras=t.split(/[^a-z0-9ñ]+/).filter(function(w){return w.length>=3});
+  var mejor=null,puntos=0;
+  productos.forEach(function(p){
+    var nombre=normalizar(p.nombre),cat=normalizar(p.categoria),n=0;
+    palabras.forEach(function(w){if(nombre.indexOf(w)>=0)n+=2;else if(cat.indexOf(w)>=0)n+=1});
+    if(n>puntos){puntos=n;mejor=p}
+  });
+  return puntos>=3?mejor:null;
+}
+function categoriaEnTexto(t){
+  var cs=categorias();
+  for(var i=0;i<cs.length;i++){
+    var raiz=normalizar(cs[i]).replace(/(es|s)$/,"");
+    if(raiz.length>=3&&t.indexOf(raiz)>=0)return cs[i];
+  }
+  return null;
+}
+function fichaProducto(p){
+  var s='<div class="as-prod"><img src="'+esc(p.imagen)+'" alt=""><div><strong>'+esc(p.nombre)+'</strong><span>'+fmt(p.precio)+'</span>';
+  if(p.opciones&&p.opciones.valores&&p.opciones.valores.length)s+='<small>'+esc(p.opciones.etiqueta)+': '+esc(p.opciones.valores.join(", "))+'</small>';
+  if(p.stock!=null)s+='<small>'+(p.stock>0?"Disponibles: "+p.stock:"Agotado por ahora")+'</small>';
+  return s+'<button data-ver="'+esc(p.id)+'">Ver en la tienda</button></div></div>';
+}
+function responder(texto){
+  var t=normalizar(texto);
+  if(contiene(t,["gracias","chao","adios","hasta luego","bye"]))
+    return{html:"¡Con gusto! 😊 Si necesitas algo más, aquí estoy.",chips:[]};
+  if(contiene(t,["asesor","humano","persona","alguien","hablar con","atencion","servicio al cliente","whatsapp","contact","llamar","telefono","celular","numero"]))
+    return{html:"¡Claro! Un asesor te atiende personalmente: "+enlaceWsp("escríbenos por WhatsApp")+" 💬",chips:[]};
+  if(contiene(t,["pago","pagar","nequi","daviplata","bre-b","breb","transfer","contraentrega","efectivo","tarjeta"])){
+    var contra=metodos.some(function(m){return m.tipo==="contraentrega"});
+    return{html:"Puedes pagar con: <strong>"+esc(metodos.map(function(m){return m.nombre}).join(", "))+"</strong>."+
+      (contra?" También tenemos <strong>contraentrega</strong>: pagas cuando recibes tu pedido.":"")+
+      " Al confirmar tu pedido te mostramos los datos para pagar.",chips:["¿Cómo compro?","Envíos"]};
+  }
+  if(contiene(t,["envio","envian","domicilio","entrega","llega","despacho","donde estan","ubicad","ciudad"]))
+    return{html:(N.cobertura?esc(N.cobertura)+".":"Hacemos envíos.")+(N.ciudad?" Estamos en <strong>"+esc(N.ciudad)+"</strong>.":"")+
+      " Para tiempos y costos exactos, "+enlaceWsp("escríbenos por WhatsApp")+".",chips:["Medios de pago","¿Cómo compro?"]};
+  if(contiene(t,["horario","abren","cierran","atienden","abierto","que hora"]))
+    return{html:N.horarios&&N.horarios.length?"Nuestros horarios:<br>"+N.horarios.map(esc).join("<br>"):"Para conocer nuestros horarios, "+enlaceWsp("escríbenos por WhatsApp")+".",chips:[]};
+  if(contiene(t,["comprar","compro","pedido","pedir","ordenar","carrito","como hago"]))
+    return{html:"¡Es muy fácil! 🛒<br>1. Elige tu producto y toca <strong>"+esc(D.botonAgregar)+"</strong>.<br>2. Abre el carrito (arriba a la derecha) y toca <strong>pagar</strong>.<br>3. Elige el medio de pago y confirma: tu pedido nos llega por <strong>WhatsApp</strong>.",chips:["Ver productos","Medios de pago"]};
+  var p=productoEnTexto(t);
+  if(p)return{html:"Esto encontré:"+fichaProducto(p),chips:["¿Cómo compro?","Ver productos"]};
+  var cat=categoriaEnTexto(t);
+  if(cat){
+    var l=productos.filter(function(x){return x.categoria===cat});
+    return{html:"En <strong>"+esc(cat)+"</strong> tenemos "+l.length+" producto"+(l.length!==1?"s":"")+":<br>"+l.slice(0,6).map(lineaProducto).join("<br>"),chips:l.slice(0,3).map(function(x){return x.nombre})};
+  }
+  if(contiene(t,["barato","economico","menor precio","mas bajo"])){
+    var b=productos.slice().sort(function(a,c){return a.precio-c.precio}).slice(0,3);
+    return{html:"Los más económicos:<br>"+b.map(lineaProducto).join("<br>"),chips:b.map(function(x){return x.nombre})};
+  }
+  if(contiene(t,["recomienda","recomendado","popular","mas vendido","favorito","mejor"])){
+    var r=productos.slice().sort(function(a,c){return(c.destacado?1:0)-(a.destacado?1:0)||c.elo-a.elo}).slice(0,3);
+    return{html:"Te recomiendo:<br>"+r.map(lineaProducto).join("<br>"),chips:r.map(function(x){return x.nombre})};
+  }
+  if(contiene(t,["producto","catalogo","venden","tienen","ofrecen","que hay","precio","cuanto","vale","cuesta"]))
+    return{html:"Tenemos <strong>"+productos.length+" productos</strong> en: "+esc(categorias().join(", "))+". ¿Cuál te interesa? También puedes escribirme el nombre de un producto para ver su precio.",chips:categorias().slice(0,5)};
+  if(contiene(t,["hola","buenas","buenos","hey","saludos","que tal"]))
+    return{html:saludoAsistente(),chips:CHIPS_INICIO};
+  return{html:"Mmm, no estoy seguro de entenderte 🤔. Puedo ayudarte con productos, precios, pagos, envíos y cómo comprar. Si prefieres, "+enlaceWsp("habla con un asesor por WhatsApp")+".",chips:CHIPS_INICIO};
+}
+function mensajeAsistente(html,quien){
+  var c=$("as-mensajes"),d=document.createElement("div");
+  d.className="as-msg as-"+quien;d.innerHTML=html;c.appendChild(d);c.scrollTop=c.scrollHeight;
+  var bs=d.querySelectorAll("[data-ver]");
+  for(var i=0;i<bs.length;i++){(function(b){b.onclick=function(){abrirAsistente(false);verProducto(b.getAttribute("data-ver"))}})(bs[i])}
+}
+function chipsAsistente(lista){
+  var c=$("as-chips");c.innerHTML="";
+  lista.forEach(function(x){var b=document.createElement("button");b.type="button";b.textContent=x;b.onclick=function(){preguntar(x)};c.appendChild(b)});
+}
+function preguntar(texto){
+  texto=String(texto||"").trim();if(!texto)return;
+  mensajeAsistente(esc(texto),"yo");chipsAsistente([]);
+  var c=$("as-mensajes"),escribiendo=document.createElement("div");
+  escribiendo.className="as-msg as-bot as-escribiendo";escribiendo.innerHTML="<i></i><i></i><i></i>";
+  c.appendChild(escribiendo);c.scrollTop=c.scrollHeight;
+  setTimeout(function(){escribiendo.remove();var r=responder(texto);mensajeAsistente(r.html,"bot");chipsAsistente(r.chips)},650);
+}
+function abrirAsistente(abrir){
+  chatAbierto=abrir===undefined?!chatAbierto:abrir;
+  $("as-panel").classList.toggle("abierto",chatAbierto);
+  $("as-burbuja").classList.toggle("activa",chatAbierto);
+  if(!chatAbierto)return;
+  $("as-aviso").style.display="none";
+  if(!chatIniciado){chatIniciado=true;mensajeAsistente(saludoAsistente(),"bot");chipsAsistente(CHIPS_INICIO)}
+  setTimeout(function(){$("as-input").focus()},250);
+}
+function iniciarAsistente(){
+  if(!AS.activo||!$("as-burbuja"))return;
+  $("as-burbuja").onclick=function(){abrirAsistente()};
+  $("as-cerrar").onclick=function(){abrirAsistente(false)};
+  $("as-form").onsubmit=function(e){e.preventDefault();var i=$("as-input");preguntar(i.value);i.value=""};
+  setTimeout(function(){if(!chatIniciado)$("as-aviso").style.display="block"},4000);
+}
+
 /* ===== VISOR DE FOTOS ===== */
 function abrirVisor(p){
   var v=$("visor");if(!v)return;
@@ -317,7 +438,7 @@ function iniciar(){
   carrito=carrito.filter(function(c){return c.cantidad>0});
   productos.forEach(function(p){p.elo=typeof elos[p.id]==="number"?elos[p.id]:1000});
   crearFiltros();mostrarProductos(productos);mostrarTop();mostrarRecomendados();duelo();
-  crearMetodos();actualizarCarrito();
+  crearMetodos();actualizarCarrito();iniciarAsistente();
 }
 cargarBackend(iniciar);
 })();

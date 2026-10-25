@@ -48,6 +48,11 @@ export function normalizarTienda(t: Tienda): Tienda {
     },
     tema: { ...t.tema, radio: Math.max(0, Math.min(40, Number(t.tema.radio) || 0)) },
     backend: { url: String(t.backend?.url || "").trim() },
+    asistente: {
+      activo: t.asistente?.activo !== false,
+      nombre: String(t.asistente?.nombre || "").trim(),
+      saludo: String(t.asistente?.saludo || "").trim(),
+    },
     secciones: Array.isArray(t.secciones) ? [...new Set(t.secciones.map(String))] : [],
     beneficios: Array.isArray(t.beneficios) ? t.beneficios : [],
     testimonios: Array.isArray(t.testimonios) ? t.testimonios : [],
