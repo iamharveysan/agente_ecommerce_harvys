@@ -411,7 +411,8 @@ ${
   op.preview
     ? ""
     : `<!-- Copia del proyecto para volver a abrirlo en Harvys (botón "Abrir"). No la borres. -->
-<script type="application/json" id="harvys-proyecto">${jsonSeguro(t)}</script>`
+<script type="application/json" id="harvys-proyecto">${jsonSeguro(t)}</script>
+<script type="application/json" id="harvys-rutas">${jsonSeguro(Object.fromEntries(t.productos.map((p) => [p.id, img(p.imagen)])))}</script>`
 }
 ${
   separado
